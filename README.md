@@ -1,37 +1,37 @@
 # Nginx IP Monitor with Cloudflare and AbuseIPDB
 
-Автоматичний моніторинг та бан підозрілих IP-адрес на основі аналізу nginx логів з інтеграцією Cloudflare та AbuseIPDB.
+Automated monitoring and banning of suspicious IP addresses based on nginx log analysis with Cloudflare and AbuseIPDB integration.
 
-## Особливості
+## Features
 
-- 🔍 **Аналіз nginx логів** - автоматичне виявлення підозрілої активності
-- 🛡️ **Інтеграція з AbuseIPDB** - перевірка IP на репутацію та репортування
-- ☁️ **Блокування в Cloudflare** - автоматичне блокування на рівні аккаунту або зон
-- 🤖 **Розпізнавання ботів** - ігнорування легальних пошукових ботів
-- ⏰ **Автоматичне видалення старих банів** - бани автоматично видаляються через 60 днів
-- 📊 **Детальне логування** - повна історія дій
+- 🔍 **Nginx log analysis** - automatic detection of suspicious activity
+- 🛡️ **AbuseIPDB integration** - IP reputation checking and reporting
+- ☁️ **Cloudflare blocking** - automatic blocking at account or zone level
+- 🤖 **Bot recognition** - ignores legitimate search engine bots
+- ⏰ **Automatic old ban removal** - bans are automatically removed after 60 days
+- 📊 **Detailed logging** - complete action history
 
-## Вимоги
+## Requirements
 
 - Python 3.7+
-- nginx з доступом до лог-файлів
-- Cloudflare API Token з правами на блокування IP
-- AbuseIPDB API Key (опціонально)
+- nginx with access to log files
+- Cloudflare API Token with IP blocking permissions
+- AbuseIPDB API Key (optional)
 
-## Встановлення
+## Installation
 
-1. Клонуйте репозиторій:
+1. Clone the repository:
 ```bash
 git clone https://github.com/dmytrobazeliuk-devops/nginx-ip-monitor-cloudflare-abuseipdb.git
 cd nginx-ip-monitor-cloudflare-abuseipdb
 ```
 
-2. Встановіть залежності:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Налаштуйте змінні оточення:
+3. Configure environment variables:
 ```bash
 export ABUSEIPDB_API_KEY="your_abuseipdb_api_key"
 export CLOUDFLARE_API_TOKEN="your_cloudflare_api_token"
@@ -41,7 +41,7 @@ export BANNED_IPS_FILE="./banned_ips.txt"
 export BANS_DATABASE_FILE="./bans_database.json"
 ```
 
-Або створіть файл `.env`:
+Or create a `.env` file:
 ```bash
 ABUSEIPDB_API_KEY=your_abuseipdb_api_key
 CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
@@ -51,21 +51,21 @@ BANNED_IPS_FILE=./banned_ips.txt
 BANS_DATABASE_FILE=./bans_database.json
 ```
 
-## Налаштування
+## Configuration
 
-### Пороги для бану
+### Ban Thresholds
 
-Ви можете налаштувати пороги через змінні оточення:
+You can configure thresholds via environment variables:
 
-- `MIN_REQUESTS_FOR_ANALYSIS` - мінімальна кількість запитів для аналізу (за замовчуванням: 5)
-- `MIN_404_ERRORS` - мінімальна кількість помилок 404 для підозри (за замовчуванням: 2)
-- `MIN_UNIQUE_PATHS` - мінімальна кількість унікальних шляхів (за замовчуванням: 5)
-- `ABUSEIPDB_CONFIDENCE_THRESHOLD` - мінімальний рівень довіри AbuseIPDB у відсотках (за замовчуванням: 30)
-- `BAN_EXPIRY_DAYS` - кількість днів до автоматичного видалення бану (за замовчуванням: 60)
+- `MIN_REQUESTS_FOR_ANALYSIS` - minimum number of requests for analysis (default: 5)
+- `MIN_404_ERRORS` - minimum number of 404 errors for suspicion (default: 2)
+- `MIN_UNIQUE_PATHS` - minimum number of unique paths (default: 5)
+- `ABUSEIPDB_CONFIDENCE_THRESHOLD` - minimum AbuseIPDB confidence level in percentage (default: 30)
+- `BAN_EXPIRY_DAYS` - number of days until automatic ban removal (default: 60)
 
-### Білий список IP
+### IP Whitelist
 
-Додайте IP-адреси до білого списку в коді (змінна `WHITELIST_IPS`):
+Add IP addresses to the whitelist in the code (variable `WHITELIST_IPS`):
 
 ```python
 WHITELIST_IPS = [
@@ -75,17 +75,17 @@ WHITELIST_IPS = [
 ]
 ```
 
-## Використання
+## Usage
 
-### Запуск вручну
+### Manual Run
 
 ```bash
 python3 nginx_ip_monitor.py
 ```
 
-### Налаштування systemd сервісу
+### Systemd Service Setup
 
-1. Створіть файл `/etc/systemd/system/nginx-ip-monitor.service`:
+1. Create file `/etc/systemd/system/nginx-ip-monitor.service`:
 
 ```ini
 [Unit]
@@ -106,7 +106,7 @@ StandardOutput=journal
 StandardError=journal
 ```
 
-2. Створіть timer `/etc/systemd/system/nginx-ip-monitor.timer`:
+2. Create timer `/etc/systemd/system/nginx-ip-monitor.timer`:
 
 ```ini
 [Unit]
@@ -122,7 +122,7 @@ Unit=nginx-ip-monitor.service
 WantedBy=timers.target
 ```
 
-3. Активуйте та запустіть:
+3. Enable and start:
 
 ```bash
 systemctl daemon-reload
@@ -130,20 +130,20 @@ systemctl enable nginx-ip-monitor.timer
 systemctl start nginx-ip-monitor.timer
 ```
 
-## Критерії бану
+## Ban Criteria
 
-IP буде забанений якщо:
+An IP will be banned if:
 
-1. **Доступ до чутливих файлів** - будь-який доступ до `.env`, `.git`, `wp-config.php` тощо
-2. **Висока репутація в AbuseIPDB** - confidence score >= порогу (за замовчуванням 30%)
-3. **Підозріла поведінка**:
-   - Багато помилок 404 (>= 2)
-   - Багато унікальних шляхів (>= 5)
-   - Комбінація кількох факторів
+1. **Access to sensitive files** - any access to `.env`, `.git`, `wp-config.php`, etc.
+2. **High AbuseIPDB reputation** - confidence score >= threshold (default 30%)
+3. **Suspicious behavior**:
+   - Many 404 errors (>= 2)
+   - Many unique paths (>= 5)
+   - Combination of multiple factors
 
-## Логування
+## Logging
 
-Всі події логуються в файл, вказаний в `LOG_OUTPUT`. Приклад:
+All events are logged to the file specified in `LOG_OUTPUT`. Example:
 
 ```
 2025-11-08 17:00:00 - [INFO] Starting nginx IP monitor
@@ -152,19 +152,20 @@ IP буде забанений якщо:
 2025-11-08 17:00:03 - [INFO] nginx IP monitor completed successfully
 ```
 
-## Безпека
+## Security
 
-⚠️ **ВАЖЛИВО**: Ніколи не публікуйте API ключі в репозиторій! Використовуйте змінні оточення або файли конфігурації, які не включені в git.
+⚠️ **IMPORTANT**: Never publish API keys in the repository! Use environment variables or configuration files that are not included in git.
 
-## Ліцензія
+## License
 
 MIT License
 
-## Автор
+## Author
 
 Dmytro Bazeliuk
 
-## Посилання
+## Links
 
+- [Portfolio Website](https://devsecops.cv)
 - [AbuseIPDB API Documentation](https://www.abuseipdb.com/api)
 - [Cloudflare API Documentation](https://developers.cloudflare.com/api/)
