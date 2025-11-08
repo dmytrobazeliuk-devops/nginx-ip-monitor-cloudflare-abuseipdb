@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Nginx IP Monitor every 5 minutes
+Requires=nginx-ip-monitor.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+Unit=nginx-ip-monitor.service
+
+[Install]
+WantedBy=timers.target

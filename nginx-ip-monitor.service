@@ -1,0 +1,16 @@
+[Unit]
+Description=Nginx IP Monitor - Automated IP blocking service
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/vhosts/devsecops.cv/httpdocs/scripts
+ExecStart=/usr/bin/python3 /var/www/vhosts/devsecops.cv/httpdocs/scripts/nginx_ip_monitor.py
+StandardOutput=append:/var/log/nginx-ip-monitor.log
+StandardError=append:/var/log/nginx-ip-monitor.log
+
+[Install]
+WantedBy=multi-user.target
+
+
