@@ -1,5 +1,5 @@
 [Unit]
-Description=Run Nginx IP Monitor every 5 minutes
+Description=Run nginx IP monitor every 5 minutes
 Requires=nginx-ip-monitor.service
 
 [Timer]

@@ -1,16 +1,16 @@
 [Unit]
-Description=Nginx IP Monitor - Automated IP blocking service
+Description=Nginx IP Monitor - Automatic IP banning based on logs
 After=network.target
 
 [Service]
 Type=oneshot
 User=root
-WorkingDirectory=/var/www/vhosts/devsecops.cv/httpdocs/scripts
+Environment="ABUSEIPDB_API_KEY=%i"
+Environment="CLOUDFLARE_API_TOKEN=%i"
+Environment="LOG_FILE=/var/log/nginx/access.log"
+Environment="LOG_OUTPUT=/var/log/nginx-ip-monitor.log"
+Environment="BANNED_IPS_FILE=/var/www/vhosts/devsecops.cv/httpdocs/scripts/banned_ips.txt"
+Environment="BANS_DATABASE_FILE=/var/www/vhosts/devsecops.cv/httpdocs/scripts/bans_database.json"
 ExecStart=/usr/bin/python3 /var/www/vhosts/devsecops.cv/httpdocs/scripts/nginx_ip_monitor.py
-StandardOutput=append:/var/log/nginx-ip-monitor.log
-StandardError=append:/var/log/nginx-ip-monitor.log
-
-[Install]
-WantedBy=multi-user.target
-
-
+StandardOutput=journal
+StandardError=journal
